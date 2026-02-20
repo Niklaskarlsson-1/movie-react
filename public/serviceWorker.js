@@ -1,7 +1,7 @@
-const STATIC_CACHE = "static-v1";
-const DYNAMIC_CACHE = "dynamic-v1";
+const STATIC_CACHE = "static-v2";
+const DYNAMIC_CACHE = "dynamic-v2";
 
-const STATIC_FILES = ["/", "/index.html", "/manifest.json", "/favicon.ico"];
+const STATIC_FILES = ["/", "/index.html", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -24,18 +24,22 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
+  if (event.request.url.includes("/movies")) {
+    return;
+  }
 
-      return fetch(event.request)
-        .then((res) => {
-          return caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request.url, res.clone());
-            return res;
-          });
-        })
-        .catch(() => caches.match("/index.html"));
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      if (response) {
+        return response;
+      }
+
+      return fetch(event.request).then((fetchRes) => {
+        return caches.open(DYNAMIC_CACHE).then((cache) => {
+          cache.put(event.request.url, fetchRes.clone());
+          return fetchRes;
+        });
+      });
     }),
   );
 });
