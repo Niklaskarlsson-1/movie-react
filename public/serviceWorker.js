@@ -24,7 +24,21 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.url.includes("/movies")) {
+  const url = event.request.url;
+
+  if (url.includes("/movies")) {
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          return caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(event.request, res.clone());
+            return res;
+          });
+        })
+        .catch(() => {
+          return caches.match(event.request);
+        }),
+    );
     return;
   }
 
@@ -36,7 +50,7 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(event.request).then((fetchRes) => {
         return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(event.request.url, fetchRes.clone());
+          cache.put(event.request, fetchRes.clone());
           return fetchRes;
         });
       });
