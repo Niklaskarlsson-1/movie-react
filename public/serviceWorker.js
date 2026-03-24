@@ -1,7 +1,14 @@
-const STATIC_CACHE = "static-v2";
-const DYNAMIC_CACHE = "dynamic-v2";
+const STATIC_CACHE = "static-v3";
+const DYNAMIC_CACHE = "dynamic-v3";
 
-const STATIC_FILES = ["/", "/index.html", "/manifest.json"];
+const STATIC_FILES = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/logo192.png",
+  "/logo512.png",
+  "/favicon.ico",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -24,36 +31,22 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  const url = event.request.url;
-
-  if (url.includes("/movies")) {
-    event.respondWith(
-      fetch(event.request)
-        .then((res) => {
-          return caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(event.request, res.clone());
-            return res;
-          });
-        })
-        .catch(() => {
-          return caches.match(event.request);
-        }),
-    );
-    return;
-  }
-
   event.respondWith(
     caches.match(event.request).then((response) => {
       if (response) {
         return response;
       }
 
-      return fetch(event.request).then((fetchRes) => {
-        return caches.open(DYNAMIC_CACHE).then((cache) => {
-          cache.put(event.request, fetchRes.clone());
-          return fetchRes;
+      return fetch(event.request)
+        .then((res) => {
+          return caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(event.request.url, res.clone());
+            return res;
+          });
+        })
+        .catch(() => {
+          return caches.match("/index.html");
         });
-      });
     }),
   );
 });
