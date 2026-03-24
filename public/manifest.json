@@ -16,14 +16,5 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#000000",
-
-  "screenshots": [
-    {
-      "src": "logo512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide"
-    }
-  ]
+  "background_color": "#000000"
 }
